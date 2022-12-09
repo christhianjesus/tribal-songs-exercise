@@ -2,6 +2,7 @@ package main
 
 import (
 	"christhianguevara/songs-search-exercise/cmd/config"
+	"christhianguevara/songs-search-exercise/internal/middlewares"
 	"fmt"
 	"net/http"
 
@@ -17,6 +18,7 @@ func main() {
 	}
 
 	e := echo.New()
+	e.Use(middlewares.KeyAuth(conf.AuthKey))
 
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
