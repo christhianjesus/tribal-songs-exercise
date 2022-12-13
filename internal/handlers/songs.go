@@ -9,19 +9,19 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type SongsHandler struct {
+type songsHandler struct {
 	service services.SongsService
 }
 
 func NewSongsHandler(service services.SongsService) Handler {
-	return &SongsHandler{service}
+	return &songsHandler{service}
 }
 
-func (h *SongsHandler) RegisterRoutes(router *echo.Group) {
+func (h *songsHandler) RegisterRoutes(router *echo.Group) {
 	router.POST(constants.SearchPath, h.Search)
 }
 
-func (h *SongsHandler) Search(c echo.Context) error {
+func (h *songsHandler) Search(c echo.Context) error {
 	ctx := c.Request().Context()
 
 	params := &entities.SearchParams{}

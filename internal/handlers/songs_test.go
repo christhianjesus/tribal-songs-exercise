@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type songsHandler struct {
+type songsHandlerMock struct {
 	service *mocks.SongsService
 	handler Handler
 }
@@ -32,28 +32,28 @@ func Test_SearchHandler(t *testing.T) {
 		params       string
 		expectedCode int
 		expectedBody string
-		function     func(*songsHandler)
+		function     func(*songsHandlerMock)
 	}{
 		{
 			name:         "Error invalid params",
 			params:       paramsError,
 			expectedCode: http.StatusBadRequest,
 			expectedBody: "{\"message\":\"Unmarshal type error: expected=string, got=number, field=name, offset=10\"}\n",
-			function:     func(sh *songsHandler) {},
+			function:     func(sh *songsHandlerMock) {},
 		},
 		{
 			name:         "Error api response",
 			params:       paramsOk,
 			expectedCode: http.StatusInternalServerError,
 			expectedBody: "{\"message\":\"any error\"}\n",
-			function:     func(sh *songsHandler) { sh.expectSearchError() },
+			function:     func(sh *songsHandlerMock) { sh.expectSearchError() },
 		},
 		{
 			name:         "Songs Search OK",
 			params:       paramsOk,
 			expectedCode: http.StatusOK,
 			expectedBody: "{\"songs\":[]}\n",
-			function:     func(sh *songsHandler) { sh.expectSearchOK() },
+			function:     func(sh *songsHandlerMock) { sh.expectSearchOK() },
 		},
 	}
 
@@ -63,7 +63,7 @@ func Test_SearchHandler(t *testing.T) {
 			sc.function(r)
 
 			e := echo.New()
-			e.POST("/search", r.handler.(*SongsHandler).Search)
+			e.POST("/search", r.handler.(*songsHandler).Search)
 
 			rec := httptest.NewRecorder()
 			req := httptest.NewRequest(http.MethodPost, "/search", strings.NewReader(sc.params))
@@ -78,22 +78,22 @@ func Test_SearchHandler(t *testing.T) {
 
 }
 
-func setupSongsHandler() *songsHandler {
+func setupSongsHandler() *songsHandlerMock {
 	serviceMock := new(mocks.SongsService)
 
-	return &songsHandler{
+	return &songsHandlerMock{
 		service: serviceMock,
 		handler: NewSongsHandler(serviceMock),
 	}
 }
 
-func (h *songsHandler) expectSearchError() {
+func (h *songsHandlerMock) expectSearchError() {
 	h.service.
 		On("Search", mock.Anything, mock.Anything).
 		Return(nil, errors.New("any error"))
 }
 
-func (h *songsHandler) expectSearchOK() {
+func (h *songsHandlerMock) expectSearchOK() {
 	h.service.
 		On("Search", mock.Anything, mock.Anything).
 		Return([]entities.Song{}, nil)
