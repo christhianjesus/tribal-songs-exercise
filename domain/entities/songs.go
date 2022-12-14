@@ -7,12 +7,12 @@ type SearchParams struct {
 }
 
 type Song struct {
-	ID       string `json:"id"`
-	Name     string `json:"name"`
-	Artist   string `json:"artist"`
-	Duration string `json:"duration"`
-	Album    string `json:"album"`
-	Artwork  string `json:"artwork"`
-	Price    string `json:"price"`
-	Origin   string `json:"origin"`
+	ID       int     `json:"id"`
+	Name     string  `json:"name"`
+	Artist   string  `json:"artist"`
+	Duration int     `json:"duration"`
+	Album    string  `json:"album"`
+	Artwork  string  `json:"artwork"`
+	Price    float64 `json:"price"`
+	Origin   string  `json:"origin"`
 }
