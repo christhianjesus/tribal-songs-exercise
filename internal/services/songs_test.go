@@ -51,7 +51,7 @@ func Test_SearchService(t *testing.T) {
 
 	for _, sc := range cases {
 		t.Run(sc.name, func(t *testing.T) {
-			r := setupSongsService()
+			r := setupSongsService(t)
 			sc.function(r)
 
 			songs, err := r.service.Search(context.Background(), nil)
@@ -59,20 +59,20 @@ func Test_SearchService(t *testing.T) {
 			if sc.expectError {
 				assert.Error(t, err)
 				assert.Equal(t, sc.expectMSG, err.Error())
+				assert.Nil(t, songs)
 			} else {
 				assert.NoError(t, err)
+				assert.Len(t, songs, sc.expectLen)
 			}
-
-			assert.Len(t, songs, sc.expectLen)
 		})
 	}
 
 }
 
-func setupSongsService() *songsServiceMock {
+func setupSongsService(t *testing.T) *songsServiceMock {
 	resourcesMock := []resources.SongsResource{
-		new(mocks.SongsResource),
-		new(mocks.SongsResource),
+		mocks.NewSongsResource(t),
+		mocks.NewSongsResource(t),
 	}
 
 	return &songsServiceMock{

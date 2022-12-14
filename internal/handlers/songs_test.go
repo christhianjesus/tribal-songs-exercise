@@ -59,7 +59,7 @@ func Test_SearchHandler(t *testing.T) {
 
 	for _, sc := range cases {
 		t.Run(sc.name, func(t *testing.T) {
-			r := setupSongsHandler()
+			r := setupSongsHandler(t)
 			sc.function(r)
 
 			e := echo.New()
@@ -78,8 +78,8 @@ func Test_SearchHandler(t *testing.T) {
 
 }
 
-func setupSongsHandler() *songsHandlerMock {
-	serviceMock := new(mocks.SongsService)
+func setupSongsHandler(t *testing.T) *songsHandlerMock {
+	serviceMock := mocks.NewSongsService(t)
 
 	return &songsHandlerMock{
 		service: serviceMock,
