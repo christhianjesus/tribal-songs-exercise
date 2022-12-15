@@ -5,20 +5,22 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/go-redis/redis/v9"
 )
 
-type SongsCachedService interface {
-	Search(context.Context, *entities.SearchParams) ([]entities.Song, error)
+type CacheClient interface {
+	Get(context.Context, string) *redis.StringCmd
+	Set(context.Context, string, interface{}, time.Duration) *redis.StatusCmd
 }
 
 type songsCachedService struct {
-	cache   *redis.Client
+	cache   CacheClient
 	service SongsService
 }
 
-func NewSongsCachedService(cache *redis.Client, service SongsService) SongsCachedService {
+func NewSongsCachedService(cache CacheClient, service SongsService) SongsService {
 	return &songsCachedService{cache, service}
 }
 
@@ -32,7 +34,7 @@ func (s *songsCachedService) Search(ctx context.Context, params *entities.Search
 			return nil, err
 		}
 
-		s.Set(ctx, key, songs)
+		_ = s.Set(ctx, key, songs)
 
 		return songs, nil
 	}
