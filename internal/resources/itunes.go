@@ -1,6 +1,7 @@
 package resources
 
 import (
+	"christhianguevara/songs-search-exercise/domain/constants"
 	"christhianguevara/songs-search-exercise/domain/entities"
 	"context"
 	"encoding/json"
@@ -18,7 +19,11 @@ func NewITunesResource(client *http.Client) SongsResource {
 }
 
 func (i *iTunesResource) Search(ctx context.Context, params *entities.SearchParams) ([]entities.Song, error) {
-	req, err := http.NewRequestWithContext(ctx, "GET", "https://itunes.apple.com/search", nil)
+	if params.Name == "" && params.Album == "" && params.Artist == "" {
+		return nil, nil
+	}
+
+	req, err := http.NewRequestWithContext(ctx, "GET", constants.ITunesPath, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +50,7 @@ func (i *iTunesResource) Search(ctx context.Context, params *entities.SearchPara
 
 	songs := make([]entities.Song, 0, len(response.Results))
 	for _, song := range response.Results {
-		song.Origin = "iTunes"
+		song.Origin = constants.ITunesOrigin
 		songs = append(songs, entities.Song(song))
 	}
 

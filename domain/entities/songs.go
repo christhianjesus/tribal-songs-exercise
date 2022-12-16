@@ -10,9 +10,9 @@ type Song struct {
 	ID       int     `json:"id"`
 	Name     string  `json:"name"`
 	Artist   string  `json:"artist"`
-	Duration int     `json:"duration"`
-	Album    string  `json:"album"`
-	Artwork  string  `json:"artwork"`
-	Price    float64 `json:"price"`
+	Duration int     `json:"duration,omitempty"`
+	Album    string  `json:"album,omitempty"`
+	Artwork  string  `json:"artwork,omitempty"`
+	Price    float64 `json:"price,omitempty"`
 	Origin   string  `json:"origin"`
 }

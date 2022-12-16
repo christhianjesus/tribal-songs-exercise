@@ -30,12 +30,13 @@ func Test_iTunesResource(t *testing.T) {
 			Name:     "Upside Down",
 			Price:    1.29,
 			Duration: 208643,
-			Origin:   "iTunes",
+			Origin:   "apple",
 		},
 	}
 
 	cases := []struct {
 		name           string
+		params         *entities.SearchParams
 		expectError    bool
 		expectMSG      string
 		expectResponse []entities.Song
@@ -43,7 +44,16 @@ func Test_iTunesResource(t *testing.T) {
 		function       func(*iTunesResourceMock)
 	}{
 		{
+			name:           "Empty params",
+			params:         &entities.SearchParams{},
+			expectError:    false,
+			expectResponse: nil,
+			ctx:            context.Background(),
+			function:       func(s *iTunesResourceMock) {},
+		},
+		{
 			name:        "Error NewRequestWithContext fail",
+			params:      &entities.SearchParams{Name: "some name"},
 			expectError: true,
 			expectMSG:   "net/http: nil Context",
 			ctx:         nil,
@@ -51,27 +61,31 @@ func Test_iTunesResource(t *testing.T) {
 		},
 		{
 			name:        "Error all apis failed",
+			params:      &entities.SearchParams{Name: "some name"},
 			expectError: true,
-			expectMSG:   "Get \"https://itunes.apple.com/search?attribute=&entity=song&limit=200&media=music&term=\": any error",
+			expectMSG:   "Get \"https://itunes.apple.com/search?attribute=songTerm&entity=song&limit=200&media=music&term=some+name\": any error",
 			ctx:         context.Background(),
 			function:    func(s *iTunesResourceMock) { s.expectAPIError() },
 		},
 		{
-			name:        "Error all apis failed",
+			name:        "Error read error",
+			params:      &entities.SearchParams{Name: "some name"},
 			expectError: true,
 			expectMSG:   "any error",
 			ctx:         context.Background(),
 			function:    func(s *iTunesResourceMock) { s.expectAPIConnectionFails() },
 		},
 		{
-			name:        "Error all apis failed",
+			name:        "Error api empty response",
+			params:      &entities.SearchParams{Name: "some name"},
 			expectError: true,
 			expectMSG:   "unexpected end of JSON input",
 			ctx:         context.Background(),
 			function:    func(s *iTunesResourceMock) { s.expectAPIEmptyResponse() },
 		},
 		{
-			name:           "Error all apis failed",
+			name:           "API response OK",
+			params:         &entities.SearchParams{Name: "some name"},
 			expectError:    false,
 			expectResponse: expectedResponse,
 			ctx:            context.Background(),
@@ -84,7 +98,7 @@ func Test_iTunesResource(t *testing.T) {
 			r := setupITunesResource(t)
 			sc.function(r)
 
-			songs, err := r.resource.Search(sc.ctx, &entities.SearchParams{})
+			songs, err := r.resource.Search(sc.ctx, sc.params)
 
 			if sc.expectError {
 				assert.Error(t, err)
@@ -92,7 +106,7 @@ func Test_iTunesResource(t *testing.T) {
 				assert.Nil(t, songs)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, songs, sc.expectResponse)
+				assert.Equal(t, sc.expectResponse, songs)
 			}
 		})
 	}

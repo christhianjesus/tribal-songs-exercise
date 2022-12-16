@@ -54,7 +54,7 @@ func Test_SearchService(t *testing.T) {
 			r := setupSongsService(t)
 			sc.function(r)
 
-			songs, err := r.service.Search(context.Background(), nil)
+			songs, err := r.service.Search(context.Background(), &entities.SearchParams{})
 
 			if sc.expectError {
 				assert.Error(t, err)

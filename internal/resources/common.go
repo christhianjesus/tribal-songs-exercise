@@ -4,7 +4,13 @@ import (
 	"christhianguevara/songs-search-exercise/domain/entities"
 	"context"
 	"strings"
+
+	"github.com/tiaguinho/gosoap"
 )
+
+type SoapClient interface {
+	Call(string, gosoap.SoapParams) (*gosoap.Response, error)
+}
 
 type SongsResource interface {
 	Search(context.Context, *entities.SearchParams) ([]entities.Song, error)
