@@ -11,10 +11,10 @@ import (
 )
 
 type iTunesResource struct {
-	client *http.Client
+	client HTTPClient
 }
 
-func NewITunesResource(client *http.Client) SongsResource {
+func NewITunesResource(client HTTPClient) SongsResource {
 	return &iTunesResource{client}
 }
 

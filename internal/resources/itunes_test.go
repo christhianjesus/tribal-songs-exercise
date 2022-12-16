@@ -15,7 +15,7 @@ import (
 )
 
 type iTunesResourceMock struct {
-	rt       *mocks.RoundTripper
+	httpc    *mocks.HTTPClient
 	resource SongsResource
 }
 
@@ -63,7 +63,7 @@ func Test_iTunesResource(t *testing.T) {
 			name:        "Error all apis failed",
 			params:      &entities.SearchParams{Name: "some name"},
 			expectError: true,
-			expectMSG:   "Get \"https://itunes.apple.com/search?attribute=songTerm&entity=song&limit=200&media=music&term=some+name\": any error",
+			expectMSG:   "any error",
 			ctx:         context.Background(),
 			function:    func(s *iTunesResourceMock) { s.expectAPIError() },
 		},
@@ -114,26 +114,23 @@ func Test_iTunesResource(t *testing.T) {
 }
 
 func setupITunesResource(t *testing.T) *iTunesResourceMock {
-	roundTripper := mocks.NewRoundTripper(t)
-	client := &http.Client{
-		Transport: roundTripper,
-	}
+	client := mocks.NewHTTPClient(t)
 
 	return &iTunesResourceMock{
-		rt:       roundTripper,
+		httpc:    client,
 		resource: NewITunesResource(client),
 	}
 }
 
 func (r *iTunesResourceMock) expectAPIError() {
-	r.rt.
-		On("RoundTrip", mock.Anything).
+	r.httpc.
+		On("Do", mock.Anything).
 		Return(nil, errors.New("any error"))
 }
 
 func (r *iTunesResourceMock) expectAPIConnectionFails() {
-	r.rt.
-		On("RoundTrip", mock.Anything).
+	r.httpc.
+		On("Do", mock.Anything).
 		Return(&http.Response{
 			StatusCode: 200,
 			Body:       io.NopCloser(&FailRead{}),
@@ -141,8 +138,8 @@ func (r *iTunesResourceMock) expectAPIConnectionFails() {
 }
 
 func (r *iTunesResourceMock) expectAPIEmptyResponse() {
-	r.rt.
-		On("RoundTrip", mock.Anything).
+	r.httpc.
+		On("Do", mock.Anything).
 		Return(&http.Response{
 			StatusCode: 200,
 			Body:       io.NopCloser(strings.NewReader(``)),
@@ -159,8 +156,8 @@ func (r *iTunesResourceMock) expectAPIResponseOK() {
 		"trackTimeMillis":208643
 	}]}`
 
-	r.rt.
-		On("RoundTrip", mock.Anything).
+	r.httpc.
+		On("Do", mock.Anything).
 		Return(&http.Response{
 			StatusCode: 200,
 			Body:       io.NopCloser(strings.NewReader(apiResponse)),
