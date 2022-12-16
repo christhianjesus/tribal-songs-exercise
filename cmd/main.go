@@ -13,6 +13,7 @@ import (
 	"github.com/go-redis/redis/v9"
 	"github.com/joeshaw/envdecode"
 	"github.com/labstack/echo/v4"
+	"github.com/tiaguinho/gosoap"
 )
 
 func main() {
@@ -31,19 +32,25 @@ func main() {
 }
 
 func setupHandlers(conf *config.Config, router *echo.Group) {
-	// Client
+	// Clients
 	client := http.DefaultClient
+	clSoap, err := gosoap.SoapClient(constants.ChartLyricsPath, client)
+	if err != nil {
+		panic(err.Error())
+	}
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     fmt.Sprintf("%s:%s", conf.Cache.Host, conf.Cache.Port),
-		Password: "", // no password set
-		DB:       0,  // use default DB
+		Addr: fmt.Sprintf("%s:%s", conf.Cache.Host, conf.Cache.Port),
 	})
 
 	// Resources
 	iTunesResource := resources.NewITunesResource(client)
+	chartLyricsResource := resources.NewChartLyricsResource(clSoap)
 
 	// Services
-	songsService := services.NewSongsService([]resources.SongsResource{iTunesResource})
+	songsService := services.NewSongsService([]resources.SongsResource{
+		iTunesResource,
+		chartLyricsResource,
+	})
 	songsCachedService := services.NewSongsCachedService(rdb, songsService)
 
 	// Handlers

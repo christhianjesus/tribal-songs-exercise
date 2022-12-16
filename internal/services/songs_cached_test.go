@@ -12,6 +12,12 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+type songsCachedServiceMock struct {
+	redis         *mocks.CacheClient
+	service       *mocks.SongsService
+	cachedService SongsService
+}
+
 func Test_SearchCachedService(t *testing.T) {
 	t.Parallel()
 
@@ -65,12 +71,6 @@ func Test_SearchCachedService(t *testing.T) {
 			}
 		})
 	}
-}
-
-type songsCachedServiceMock struct {
-	redis         *mocks.CacheClient
-	service       *mocks.SongsService
-	cachedService SongsService
 }
 
 func setupSongsCachedService(t *testing.T) *songsCachedServiceMock {
