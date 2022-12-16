@@ -1,29 +1,31 @@
-# README #
+# Songs Search Exercise #
 
-This README would normally document whatever steps are necessary to get your application up and running.
+This repository implements an API to get song information from different services on Golang Echo.
 
-### What is this repository for? ###
+## Install
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+Make sure you are using Docker
 
-### How do I get set up? ###
+```
+docker-compose up
+```
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+## Routes
 
-### Contribution guidelines ###
+The service provides an unique endpoint with key authentication (default: token).
 
-* Writing tests
-* Code review
-* Other guidelines
+```
+curl --location --request POST 'http://localhost:80/api/search' \
+--header 'Authorization: token' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "name": "Ahora quién",
+    "album": "Sigo Siendo Yo",
+    "artist": "Marc Anthony"
+}'
+```
 
-### Who do I talk to? ###
+## Authentication
 
-* Repo owner or admin
-* Other community or team contact
+Use the Authorization header with a defined key.
+You can change the key changing the AUTH_KEY env var with a `.env` file
